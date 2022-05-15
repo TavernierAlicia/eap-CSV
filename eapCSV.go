@@ -58,7 +58,7 @@ func dbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, 
 		fmt.Println("Error getting csv content, dbGetCSV: ", err)
 	}
 
-	fmt.Println(result)
+	// fmt.Println(result)
 	return result, err
 
 }
