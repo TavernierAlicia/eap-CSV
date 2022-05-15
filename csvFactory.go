@@ -1,11 +1,7 @@
 package eapCSV
 
 import (
-	"encoding/csv"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -67,32 +63,32 @@ func dbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, 
 
 }
 
-func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (filepath string, err error) {
+// func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (filepath string, err error) {
 
-	var rows [][]string
+// 	var rows [][]string
 
-	filepath = "media/csvs/" + strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
+// 	filepath = "media/csvs/" + strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
 
-	file, err := os.Create(filepath)
+// 	file, err := os.Create(filepath)
 
-	if err != nil {
-		fmt.Println("File creation failed, FactstoCSV: ", err)
-	}
+// 	if err != nil {
+// 		fmt.Println("File creation failed, FactstoCSV: ", err)
+// 	}
 
-	writer := csv.NewWriter(file)
+// 	writer := csv.NewWriter(file)
 
-	for _, row := range content {
+// 	for _, row := range content {
 
-		fmt.Println(row.Id, row.Name, row.Quantity, row.Price, row.Order_id, row.Order_date)
-		rows = append(rows, []string{strconv.Itoa(row.Id), row.Name, strconv.Itoa(row.Quantity), fmt.Sprintf("%.2f", row.Price), strconv.Itoa(row.Order_id), row.Order_date})
+// 		fmt.Println(row.Id, row.Name, row.Quantity, row.Price, row.Order_id, row.Order_date)
+// 		rows = append(rows, []string{strconv.Itoa(row.Id), row.Name, strconv.Itoa(row.Quantity), fmt.Sprintf("%.2f", row.Price), strconv.Itoa(row.Order_id), row.Order_date})
 
-	}
+// 	}
 
-	err = writer.WriteAll(rows)
-	if err != nil {
-		fmt.Println("Cannot write csv rows, FactstoCSV: ", err)
-	}
+// 	err = writer.WriteAll(rows)
+// 	if err != nil {
+// 		fmt.Println("Cannot write csv rows, FactstoCSV: ", err)
+// 	}
 
-	return filepath, err
+// 	return filepath, err
 
-}
+// }
