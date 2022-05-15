@@ -48,7 +48,7 @@ func dbConnect() (db *sqlx.DB) {
 	return db
 }
 
-func dbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, err error) {
+func DbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, err error) {
 	db := dbConnect()
 
 	err = db.Select(&result, "SELECT id, totalTTC, totalHT, created FROM orders WHERE etab_id = ? AND done = 1 AND created BETWEEN ? and ?", etabid, start, end)
