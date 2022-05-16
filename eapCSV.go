@@ -1,7 +1,11 @@
 package eapCSV
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -51,44 +55,52 @@ func dbConnect() (db *sqlx.DB) {
 func DbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, err error) {
 	db := dbConnect()
 
-	err = db.Select(&result, "SELECT id, totalTTC, totalHT, created FROM orders WHERE etab_id = ? AND done = 1 AND created BETWEEN ? and ?", etabid, start, end)
+	err = db.Select(&result, "SELECT id, totalTTC, totalHT, created FROM orders WHERE etab_id = ? AND done = 1 AND created BETWEEN ? and ? ORDER BY created ASC", etabid, start, end)
 
 	for i, order := range result {
 		err = db.Select(&result[i].Items, "SELECT order_items.id, order_items.order_id, order_items.quantity, order_items.price, items.name FROM `order_items` JOIN items ON items.id = order_items.item_id WHERE order_items.order_id = ?", order.Id)
-		fmt.Println("Error getting csv content, dbGetCSV: ", err)
+
+		if err != nil {
+			fmt.Println("Error getting csv content, dbGetCSV: ", err)
+		}
 	}
 
-	// fmt.Println(result)
 	return result, err
 
 }
 
-// func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (filepath string, err error) {
+func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (filepath string, err error) {
 
-// 	var rows [][]string
+	var rows [][]string
 
-// 	filepath = "media/csvs/" + strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
+	filepath = "media/csvs/" + strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
 
-// 	file, err := os.Create(filepath)
+	file, err := os.Create(filepath)
 
-// 	if err != nil {
-// 		fmt.Println("File creation failed, FactstoCSV: ", err)
-// 	}
+	if err != nil {
+		fmt.Println("File creation failed, FactstoCSV: ", err)
+	}
 
-// 	writer := csv.NewWriter(file)
+	writer := csv.NewWriter(file)
 
-// 	for _, row := range content {
+	rows = append(rows, []string{"Numéro", "Date", "Total HT", "Total TTC"})
 
-// 		fmt.Println(row.Id, row.Name, row.Quantity, row.Price, row.Order_id, row.Order_date)
-// 		rows = append(rows, []string{strconv.Itoa(row.Id), row.Name, strconv.Itoa(row.Quantity), fmt.Sprintf("%.2f", row.Price), strconv.Itoa(row.Order_id), row.Order_date})
+	for i, command := range content {
+		rows = append(rows, []string{"", "", "", "", ""})
+		fmt.Println(command)
+		rows = append(rows, []string{strconv.Itoa(command.Id), command.Date, fmt.Sprintf("%.2f", command.TotalHT), fmt.Sprintf("%.2f", command.TotalTTC)})
 
-// 	}
+		rows = append(rows, []string{"", "ID", "Désignation", "Quantité", "Prix unitaire"})
+		for _, item := range content[i].Items {
+			rows = append(rows, []string{"", strconv.Itoa(item.Id), item.Name, strconv.Itoa(item.Quantity), fmt.Sprintf("%.2f", item.Price)})
+		}
+	}
 
-// 	err = writer.WriteAll(rows)
-// 	if err != nil {
-// 		fmt.Println("Cannot write csv rows, FactstoCSV: ", err)
-// 	}
+	err = writer.WriteAll(rows)
+	if err != nil {
+		fmt.Println("Cannot write csv rows, FactstoCSV: ", err)
+	}
 
-// 	return filepath, err
+	return filepath, err
 
-// }
+}
