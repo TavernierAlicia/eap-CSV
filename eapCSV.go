@@ -86,7 +86,6 @@ func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (fi
 	rows = append(rows, []string{"Numéro", "Date", "Total HT", "Total TTC"})
 
 	for i, command := range content {
-		rows = append(rows, []string{"", "", "", "", ""})
 		fmt.Println(command)
 		rows = append(rows, []string{strconv.Itoa(command.Id), command.Date, fmt.Sprintf("%.2f", command.TotalHT), fmt.Sprintf("%.2f", command.TotalTTC)})
 
@@ -94,6 +93,7 @@ func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (fi
 		for _, item := range content[i].Items {
 			rows = append(rows, []string{"", strconv.Itoa(item.Id), item.Name, strconv.Itoa(item.Quantity), fmt.Sprintf("%.2f", item.Price)})
 		}
+		rows = append(rows, []string{"", "", "", "", ""})
 	}
 
 	err = writer.WriteAll(rows)
