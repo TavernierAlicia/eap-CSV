@@ -69,11 +69,13 @@ func DbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, 
 
 }
 
-func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (filepath string, err error) {
+func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (link string, err error) {
 
 	var rows [][]string
 
-	filepath = viper.GetString("links.cdn_csv") + strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
+	filename := strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
+	filepath := viper.GetString("links.cdn_csv_dest") + filename
+	link = viper.GetString("links.cdn_csv_dest") + filename
 
 	file, err := os.Create(filepath)
 
@@ -101,6 +103,6 @@ func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (fi
 		fmt.Println("Cannot write csv rows, FactstoCSV: ", err)
 	}
 
-	return filepath, err
+	return link, err
 
 }
