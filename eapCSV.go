@@ -75,7 +75,9 @@ func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (li
 
 	filename := strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
 	filepath := viper.GetString("links.cdn_csv_dest") + filename
+	fmt.Println(filepath)
 	link = viper.GetString("links.cdn_csv") + filename
+	fmt.Println(link)
 
 	file, err := os.Create(filepath)
 
