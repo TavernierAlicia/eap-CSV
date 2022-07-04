@@ -54,7 +54,6 @@ func dbConnect() (db *sqlx.DB) {
 
 func DbGetCSVFacts(start string, end string, etabid int64) (result []*OrderCSV, err error) {
 	db := dbConnect()
-	fmt.Println("456")
 
 	err = db.Select(&result, "SELECT id, totalTTC, totalHT, created FROM orders WHERE etab_id = ? AND done = 1 AND created BETWEEN ? and ? ORDER BY created ASC", etabid, start, end)
 
@@ -74,13 +73,10 @@ func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (li
 
 	var rows [][]string
 
-	fmt.Println("123")
 	filename := strconv.FormatInt(etabid, 10) + "_" + strings.ReplaceAll(start, " ", "-") + "_to_" + strings.ReplaceAll(end, " ", "-") + "-export.csv"
 	// filepath := viper.GetString("links.cdn_csv_dest") + filename
 	filepath := "/home/ec2-user/media/csv/" + filename
-	fmt.Println(filepath)
 	link = viper.GetString("links.cdn_csv") + filename
-	fmt.Println(link)
 
 	file, err := os.Create(filepath)
 
@@ -96,11 +92,11 @@ func FactstoCSV(content []*OrderCSV, etabid int64, start string, end string) (li
 		fmt.Println(command)
 		rows = append(rows, []string{strconv.Itoa(command.Id), command.Date, fmt.Sprintf("%.2f", command.TotalHT), fmt.Sprintf("%.2f", command.TotalTTC)})
 
-		rows = append(rows, []string{"", "ID", "Désignation", "Quantité", "Prix unitaire"})
+		rows = append(rows, []string{"", "ID", "Désignation", "Quantité", "Prix unitaire HT", "Prix unitaire TTC"})
 		for _, item := range content[i].Items {
-			rows = append(rows, []string{"", strconv.Itoa(item.Id), item.Name, strconv.Itoa(item.Quantity), fmt.Sprintf("%.2f", item.Price)})
+			rows = append(rows, []string{"", strconv.Itoa(item.Id), item.Name, strconv.Itoa(item.Quantity), fmt.Sprintf("%.2f", item.Price/1.2), fmt.Sprintf("%.2f", item.Price)})
 		}
-		rows = append(rows, []string{"", "", "", "", ""})
+		rows = append(rows, []string{"", "", "", "", "", ""})
 	}
 
 	err = writer.WriteAll(rows)
